@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phonebook Cards</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" placeholder="Search..." class="search-input">
+            <button class="add-btn"><i class="fas fa-user-plus"></i></button>
+        </div>
+
+        <div class="card-container">
+            <!-- Example Card -->
+            <div class="card">
+                <img src="https://via.placeholder.com/100" alt="Avatar" class="avatar">
+                <div class="info">
+                    <h3>Ada</h3>
+                    <p>08112237700</p>
+                </div>
+                <div class="actions">
+                    <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                    <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+
+            <!-- Repeat the card for other contacts -->
+            <div class="card">
+                <img src="https://via.placeholder.com/100" alt="Avatar" class="avatar">
+                <div class="info">
+                    <h3>Abi</h3>
+                    <p>08112237701</p>
+                </div>
+                <div class="actions">
+                    <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                    <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script>
+    const searchInput = document.querySelector('.search-input');
+    const addBtn = document.querySelector('.add-btn');
+    const cardContainer = document.querySelector('.card-container');
+
+    addBtn.addEventListener('click', () => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.innerHTML = `
+        <img src="https://via.placeholder.com/100" alt="Avatar" class="avatar">
+        <div class="info">
+            <h3>New Contact</h3>
+            <p>08112237700</p>
+        </div>
+        <div class="actions">
+            <button class="edit-btn"><i class="fas fa-edit"></i></button>
+            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+        </div>
+        `;
+        cardContainer.appendChild(card);
+    });
+</script>
+
+<style>
+    /* styles.css */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        width: 90%;
+        margin: 20px auto;
+    }
+
+    .search-bar {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .search-input {
+        width: 90%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .add-btn {
+        background-color: #ffcc00;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .add-btn i {
+        font-size: 18px;
+    }
+
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: space-between;
+    }
+
+    .card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        width: calc(33% - 20px);
+        box-sizing: border-box;
+    }
+
+    .avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+
+    .info {
+        flex-grow: 1;
+    }
+
+    .info h3 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .info p {
+        margin: 5px 0 0;
+        color: #555;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .edit-btn,
+    .delete-btn {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+    }
+
+    .edit-btn i {
+        color: #007bff;
+        font-size: 18px;
+    }
+
+    .delete-btn i {
+        color: #dc3545;
+        font-size: 18px;
+    }
+</style>
