@@ -25,7 +25,6 @@ export default function PhonebookItem() {
     return (
         <>
             <div>
-                <h1>Phonebook</h1>
             </div>
             <div className="nav sticky-top"></div>
             <button type="button" className="btn-brown" id="sortPhonebook" onClick={handleSort}>

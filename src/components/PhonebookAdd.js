@@ -1,34 +1,53 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import request from '../utils/request';
 
-const PhonebookAdd = ({ onAdd }) => {
+const PhonebookAdd = () => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [showAlert, setShowAlert] = useState(false);
+    const Navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleFormSubmit = async (e) => {
         e.preventDefault();
-        onAdd({ id: Date.now(), name, phone });
-        setName('');
-        setPhone('');
+        try {
+            await request.post('', { name, phone });
+            Navigate('/');
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const closeButton = () => {
+        setShowAlert(false);
     };
 
+
     return (
-        <form onSubmit={handleSubmit}>
-            <input
-                type="text"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-            />
-            <input
-                type="text"
-                placeholder="Phone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-            />
-            <button type="submit">Add Contact</button>
-        </form>
+        <>
+            {showAlert && (
+                <div className='alert' id='alert' role='alert'>
+                    <button className='close-btn' onClick={closeButton}>X</button>
+                </div>
+            )}
+            <form onSubmit={handleFormSubmit}>
+                <input
+                    type="text"
+                    placeholder="Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                />
+                <input
+                    type="text"
+                    placeholder="Phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                />
+                <button type="submit">Add Contact</button>
+            </form>
+        </>
     );
 };
 
