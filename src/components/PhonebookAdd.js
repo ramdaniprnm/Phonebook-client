@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { request } from '../services/PhonebookApi';
 
-const PhonebookAdd = () => {
+export default function PhonebookAdd() {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
@@ -12,7 +12,7 @@ const PhonebookAdd = () => {
     const formSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('', { name, phone });
+            await request.post('', { name, phone });
             Navigate('/');
         } catch (error) {
             console.error(error);
@@ -43,7 +43,7 @@ const PhonebookAdd = () => {
             <div className='form-data'>
                 <input
                     type="text"
-                    classcName="form-control"
+                    className="form-control"
                     id='name'
                     name='name'
                     required
@@ -69,5 +69,3 @@ const PhonebookAdd = () => {
         </>
     );
 };
-
-export default PhonebookAdd;

@@ -1,44 +1,42 @@
-import React, { useState } from "react";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
-import { faArrowDownAZ } from "@fortawesome/free-solid-svg-icons/faArrowDownAZ";
-import { faArrowUpAZ } from "@fortawesome/free-solid-svg-icons/faArrowUpAZ";
-import { faUserPlus } from "@fortawesome/free-solid-svg-icons/faUserPlus";
+import React, { useRef, useState } from "react";
+import { faPenToSquare, faSave, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-export default function PhonebookItem(props) {
-    const { id, name, phone, avatar } = props;
-    const [sortOrders, setSortOrder] = useState(localStorage.getItem('sortOrder') || 'asc');
+export const PhonebookItem = (props) => {
+    const { id, name, phone, avatar, updatePhonebook, deleteModal } = props;
+    const [isUpdate, setIsUpdate] = useState(false);
     const [updateName, setUpdateName] = useState(name);
     const [updatePhone, setUpdatePhone] = useState(phone);
     const [alertMessage, setAlertMessage] = useState('');
     const [showAlert, setShowAlert] = useState(false);
-    const navigate = useNavigate();
-
-
-    const navigateAddForm = (e) => {
-        e.preventDefault();
-        navigate('/add');
-    }
+    const fileInput = useRef(null);
 
     const saveButton = async (e) => {
+        setIsUpdate(false);
         try {
             const response = await axios.put(id.toString(), {
                 name: updateName,
                 phone: updatePhone,
             });
+            updatePhonebook(id, response.data);
+        } catch (error) {
+            console.error('Error updating data:', error);
+            setAlertMessage('Failed to update. Please try again.');
+            setShowAlert(true);
         }
+    };
+
+    const editButton = () => {
+        setIsUpdate(true);
+    }
+
+    const imageButton = () => {
+        fileInput.current.click();
     }
 
     const closeButton = () => {
         setShowAlert(false);
-    }
-
-    const handleSort = () => {
-        const newSortOrder = sortOrders === 'asc' ? 'desc' : 'asc';
-        setSortOrder(newSortOrder);
-        setSortOrder(newSortOrder);
-        localStorage.setItem('sortOrder', newSortOrder);
     }
 
     return (
@@ -51,7 +49,7 @@ export default function PhonebookItem(props) {
                     </div>
                 )}
                 <div className="card-body">
-                    <img src={avatar} alt={name} onClick={ } className='avatar' />
+                    <img src={avatar} alt={name} onClick={imageButton} className='avatar' />
                     <input
                         type="file"
                         ref={fileInput}
@@ -68,24 +66,21 @@ export default function PhonebookItem(props) {
                                 <p className="card-text">{phone}</p>
                             </>
                         )}
-                    </div>
-                    <div className="nav sticky-top"></div>
-                    <button type="button" className="btn-brown" id="sortPhonebook" onClick={handleSort}>
-                        <FontAwesomeIcon icon={sortOrders === 'asc' ? faArrowUpAZ : faArrowDownAZ} />
-                    </button>
-                    <div className="search-bar">
-                        <input type="text" placeholder="Search" />
-                        <button type="button" className="btn-brown" id="searchPhonebook">
-                            <FontAwesomeIcon icon={faSearch} />
-                        </button>
-                    </div>
-                    <div>
-                        <button type="button" onClick={navigateAddForm} className="btn-brown" id="addPhonebook">
-                            <FontAwesomeIcon icon={faUserPlus} />
-                        </button>
+                        <div className="button-group">
+                            <button type="button" onClick={isUpdate ? saveButton : editButton} className="btn-action" >
+                                <FontAwesomeIcon icon={isUpdate ? faSave : faPenToSquare} />
+                            </button>
+                            {!isUpdate && (
+                                <button onClick={() => deleteModal({ id, name })} className="btn-action" >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
-
-            </>
-            )
+            </div>
+        </>
+    )
 }
+
+export default PhonebookItem
