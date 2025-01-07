@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import AvatarPage from './components/AvatarPage';
 import PhonebookAdd from './components/PhonebookAdd';
 import PhonebookItem from './components/PhonebookHead';
@@ -28,6 +28,5 @@ const App = () => {
     </>
   )
 }
-
 
 export default App;

@@ -33,11 +33,11 @@ export const PhonebookHead = () => {
 
     return (
         <>
-            <div className="nav sticky-top">
+            <div className="nav">
                 <button type="button" className="btn-brown" id="sortPhonebook" onClick={handleSort} >
                     <FontAwesomeIcon icon={sortOrder === 'asc' ? faArrowUpAZ : faArrowDownAZ} />
                 </button>
-                <div className="search-bar">
+                <div className="form-control">
                     <span type="button" className="btn-brown" id="searchPhonebook">
                         <FontAwesomeIcon icon={faSearch} />
                     </span>
