@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { request } from '../services/PhonebookApi';
 
-export default function PhonebookAdd() {
+export const PhonebookAdd = () => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
@@ -15,7 +15,6 @@ export default function PhonebookAdd() {
             await request.post('', { name, phone });
             Navigate('/');
             console.log(`name: ${name}, phone: ${phone}`);
-
         } catch (error) {
             console.error(error);
             setAlertMessage('error', error.message);
@@ -72,3 +71,5 @@ export default function PhonebookAdd() {
         </>
     );
 };
+
+export default PhonebookAdd;

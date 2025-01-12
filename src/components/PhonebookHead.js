@@ -8,12 +8,8 @@ import { useNavigate } from "react-router-dom";
 
 export const PhonebookHead = () => {
     const [query, setSearchTerm] = useState('');
-    const [alertMessage, showAlert] = useState('');
     const [sortOrders, setSortOrder] = useState(localStorage.getItem('sortOrder') || 'asc');
-    const sortOrder = 'asc';
     const navigate = useNavigate();
-
-
     const navigateAddForm = (e) => {
         e.preventDefault();
         navigate('/add');
@@ -22,8 +18,8 @@ export const PhonebookHead = () => {
     const searchPhonebook = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
+    };
 
-    }
     const handleSort = () => {
         const newSortOrder = sortOrders === 'asc' ? 'desc' : 'asc';
         setSortOrder(newSortOrder);
@@ -32,16 +28,14 @@ export const PhonebookHead = () => {
     }
 
     return (
-        <>
-            <div className="nav">
-                <button type="button" className="btn-brown" id="sortPhonebook" onClick={handleSort} >
-                    <FontAwesomeIcon icon={sortOrder === 'asc' ? faArrowUpAZ : faArrowDownAZ} />
-                </button>
-                <div className="form-control">
-                    <span type="button" className="btn-brown" id="searchPhonebook">
-                        <FontAwesomeIcon icon={faSearch} />
-                    </span>
-                </div>
+        <div className="nav sticky-top">
+            <button className="btn-sort" id="sortPhonebook" onClick={handleSort} >
+                <FontAwesomeIcon icon={sortOrders === 'asc' ? faArrowUpAZ : faArrowDownAZ} />
+            </button>
+            <div className="search-bar">
+                <span className="search-btn">
+                    <FontAwesomeIcon icon={faSearch} />
+                </span>
                 <input
                     type="text"
                     className="form-control"
@@ -56,8 +50,8 @@ export const PhonebookHead = () => {
                     </button>
                 </div>
             </div>
-        </>
+        </div>
     )
-}
+};
 
 export default PhonebookHead;

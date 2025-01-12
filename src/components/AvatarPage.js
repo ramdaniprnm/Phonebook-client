@@ -1,39 +1,93 @@
-// import React, { useEffect, useState } from 'react';
-// import { useParams, useNavigate } from 'react-router-dom';
-// import { getStoredContacts } from '../data/contacts';
-// import './AvatarPage.css';
+// import React, { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { faPenToSquare, faSave, faTrash } from "@fortawesome/free-solid-svg-icons";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { request, url } from "../services/PhonebookApi";
 
-// const AvatarPage = () => {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-//   const [contact, setContact] = useState(null);
+// export const PhonebookItem = (props) => {
+//     const { id, name, phone, avatar, updatePhonebook, deleteModal } = props;
+//     const [isUpdate, setIsUpdate] = useState(false);
+//     const [updateName, setUpdateName] = useState(name);
+//     const [updatePhone, setUpdatePhone] = useState(phone);
+//     const [alertMessage, setAlertMessage] = useState('');
+//     const [showAlert, setShowAlert] = useState(false);
+//     const navigate = useNavigate();
 
-//   useEffect(() => {
-//     const contacts = getStoredContacts();
-//     const foundContact = contacts.find(c => c.id === parseInt(id));
-//     setContact(foundContact);
-//   }, [id]);
+//     const saveButton = async () => {
+//         setIsUpdate(false);
+//         try {
+//             const response = await request.put(id.toString(), {
+//                 name: updateName,
+//                 phone: updatePhone,
+//             });
+//             updatePhonebook(id, response.data);
+//         } catch (error) {
+//             console.error('Error updating data:', error);
+//             setAlertMessage('Failed to update. Please try again.');
+//             setShowAlert(true);
+//         }
+//     };
 
-//   if (!contact) {
-//     return <div>Contact not found</div>;
-//   }
+//     let baseAvatar = `${url()}/images/${id}/${avatar}`;
+//     if (!avatar) {
+//         baseAvatar = `${url()}/images/default-avatar.png`;
+//     }
 
-//   return (
-//     <div className="avatar-page">
-//       <button className="back-button" onClick={() => navigate('/')}>
-//         Back to Contacts
-//       </button>
-//       <div className="avatar-container">
-//         <img 
-//           src={contact.avatar || '/avatars/default.png'} 
-//           alt={contact.name} 
-//           className="large-avatar"
-//         />
-//         <h2>{contact.name}</h2>
-//         <p>{contact.phone}</p>
-//       </div>
-//     </div>
-//   );
-// };
+//     const editButton = () => {
+//         setIsUpdate(true);
+//     }
 
-// export default AvatarPage;
+//     const handleAvatarClick = () => {
+//         navigate(`/avatar/${id}`);
+//     }
+
+//     const closeButton = () => {
+//         setShowAlert(false);
+//     }
+
+//     return (
+//         <>
+//             <div className="card">
+//                 {showAlert && (
+//                     <div className='alert' id='alert' role='alert'>
+//                         <button className='close-btn' onClick={closeButton}>X</button>
+//                         <p id='alert-Message'>{alertMessage}</p>
+//                     </div>
+//                 )}
+//                 <div className="card-body">
+//                     <img
+//                         src={baseAvatar}
+//                         alt={name}
+//                         onClick={handleAvatarClick}
+//                         className='avatar'
+//                     />
+//                     <div className="card-content">
+//                         {isUpdate ? (
+//                             <>
+//                                 <input type="text" value={updateName} onChange={(e) => setUpdateName(e.target.value)} className="form-control" />
+//                                 <input type="text" value={updatePhone} onChange={(e) => setUpdatePhone(e.target.value)} className="form-control" />
+//                             </>
+//                         ) : (
+//                             <>
+//                                 <p className="card-text">{name}</p>
+//                                 <p className="card-text">{phone}</p>
+//                             </>
+//                         )}
+//                         <div className="button-group">
+//                             <button type="button" onClick={isUpdate ? saveButton : editButton} className="btn-action" >
+//                                 <FontAwesomeIcon icon={isUpdate ? faSave : faPenToSquare} />
+//                             </button>
+//                             {!isUpdate && (
+//                                 <button onClick={() => deleteModal({ id, name })} className="btn-action" >
+//                                     <FontAwesomeIcon icon={faTrash} />
+//                                 </button>
+//                             )}
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+//         </>
+//     )
+// }
+
+// export default PhonebookItem;

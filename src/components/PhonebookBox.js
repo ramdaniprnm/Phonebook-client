@@ -3,7 +3,6 @@ import PhonebookHead from "./PhonebookHead";
 import { throttle } from "lodash";
 import { request } from "../services/PhonebookApi";
 import { PhonebookList } from "./PhonebookList";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PhonebookDelete } from "./PhonebookDelete";
 
 export const PhonebookBox = () => {
@@ -16,19 +15,19 @@ export const PhonebookBox = () => {
     const [hasMore, setHasMore] = useState(true);
     const [deleteId, setDeleteId] = useState(null);
     const observer = useRef();
-    const lastPage = useRef();
 
-    const fetchPhonebookItems = async () => {
+    const fetchPhonebookItems = async (page, searchQuery, sortOrder) => {
         setIsFetch(true);
         try {
             const response = await request.get(`?page=${page}&keyword=${searchQuery}&sort=${sortOrder}`);
+            console.log("response", response.data);
             setPhonebookItems((prevItems) => {
-                const newItems = response.data.Phonebook.filter(
+                const newItems = response.data.phonebook.filter(
                     (newItem) => !prevItems.some((item) => item.id === newItem.id)
                 );
                 return [...prevItems, ...newItems];
             });
-            setHasMore(response.data.Phonebook.length > 0);
+            setHasMore(response.data.phonebook.length > 0);
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -36,20 +35,18 @@ export const PhonebookBox = () => {
         }
     };
 
+
     useEffect(() => {
         setPage(1);
         setPhonebookItems([]);
-        if (!searchQuery && sortOrder === "asc") {
-            localStorage.clear();
-        } else {
-            localStorage.setItem("searchQuery", searchQuery);
-            localStorage.setItem("sortOrder", sortOrder);
-        }
-    }, [searchQuery, sortOrder]);
+        if (!searchQuery && sortOrder === "asc") localStorage.clear();
+    }, [page, searchQuery, sortOrder]);
 
     useEffect(() => {
-        fetchPhonebookItems();
+        Promise.resolve().then(() => fetchPhonebookItems(page, searchQuery, sortOrder));
     }, [page, searchQuery, sortOrder]);
+
+    const lastPage = useRef();
 
     useEffect(() => {
         if (isFetch) return;
@@ -71,7 +68,15 @@ export const PhonebookBox = () => {
         };
     }, [hasMore, isFetch]);
 
-    const deletePhonebookItem = (id) => {
+
+    const updatePhonebook = (id, updatedItem) => {
+        setPhonebookItems((prevItems) =>
+            prevItems.map((item) => (item.id === id ? updatedItem : item))
+        );
+    };
+
+
+    const deletePhonebook = (id) => {
         setPhonebookItems((prevItems) => prevItems.filter((item) => item.id !== id));
     };
 
@@ -99,21 +104,16 @@ export const PhonebookBox = () => {
             />
             <PhonebookList
                 PhonebookItems={PhonebookItems}
-                updatePhonebookItems={setPhonebookItems}
-                deletePhonebookItem={deletePhonebookItem}
+                updatePhonebook={updatePhonebook}
+                deletePhonebook={deletePhonebook}
                 showingDeleteModal={showingDeleteModal}
             />
-            {isFetch && (
-                <div className="loading">
-                    <FontAwesomeIcon icon="spinner" spin size="3x" />
-                </div>
-            )}
             <div ref={lastPage}></div>
             {deleteModal && deleteId && (
                 <PhonebookDelete
                     id={deleteId.id}
                     name={deleteId.name}
-                    removePhonebook={deletePhonebookItem}
+                    removePhonebook={deletePhonebook}
                     closeDeleteModal={closeDeleteModal}
                 />
             )}

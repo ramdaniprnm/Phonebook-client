@@ -1,32 +1,26 @@
-import React from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import AvatarPage from './components/AvatarPage';
-import PhonebookAdd from './components/PhonebookAdd';
-import PhonebookItem from './components/PhonebookHead';
 import './App.css';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { PhonebookBox } from './components/PhonebookBox';
+import PhonebookAdd from './components/PhonebookAdd';
+import AvatarPage from './components/AvatarPage';
 
-
-const route = createBrowserRouter([
+const router = createBrowserRouter([
   {
     path: "/",
-    element: <PhonebookItem />,
+    element: <PhonebookBox />,
   },
   {
     path: "/add",
     element: <PhonebookAdd />,
   },
-  // {
-  //   path: "/avatar/:id",
-  //   element: <AvatarPage />,
-  // },
-])
+  {
+    path: "/avatar/:id",
+    element: <AvatarPage />,
+  }
+]);
 
-const App = () => {
-  return (
-    <>
-      <RouterProvider router={route} />
-    </>
-  )
-}
+const App = () => (
+  <RouterProvider router={router} />
+);
 
 export default App;
