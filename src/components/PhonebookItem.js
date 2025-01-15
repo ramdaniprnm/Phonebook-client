@@ -2,18 +2,28 @@ import React, { useRef, useState } from "react";
 import { faPenToSquare, faSave, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { request, url } from "../services/PhonebookApi";
+import { useNavigate } from "react-router-dom";
 
-export const PhonebookItem = (props) => {
-    const { id, name, phone, avatar, updatePhonebook, deleteModal } = props;
+const PhonebookItem = (props) => {
+    const { id, name, phone, avatar, updatePhonebook, throwDeleteModal } = props;
     const [isUpdate, setIsUpdate] = useState(false);
     const [updateName, setUpdateName] = useState(name);
     const [updatePhone, setUpdatePhone] = useState(phone);
     const [alertMessage, setAlertMessage] = useState('');
     const [showAlert, setShowAlert] = useState(false);
     const fileInput = useRef(null);
+    const navigate = useNavigate();
 
-    const editButton = () => {
+    const handleEditButton = () => {
         setIsUpdate(true);
+    }
+
+    const handleCloseButton = () => {
+        setShowAlert(false);
+    }
+
+    const handleAvatarClick = () => {
+        navigate(`/avatar/${id}`);
     }
 
     const handleSaveClick = async (e) => {
@@ -51,17 +61,10 @@ export const PhonebookItem = (props) => {
     };
 
 
-    const imageButton = () => {
-        fileInput.current.click();
-    }
-
-    const closeButton = () => {
-        setShowAlert(false);
-    }
 
     let baseAvatar = `${url()}/images/${id}/${avatar}`;
     if (!avatar) {
-        baseAvatar = `${url()}/images/default-avatar.png`;
+        baseAvatar = `${url()}/images/'default.png'`;
     }
 
     return (
@@ -69,14 +72,14 @@ export const PhonebookItem = (props) => {
             <div className="card">
                 {showAlert && (
                     <div className='alert' id='alert' role='alert'>
-                        <button className='close-btn' onClick={closeButton}>X</button>
+                        <button className='close-btn' onClick={handleCloseButton}>X</button>
                         <p id='alert-Message'>{alertMessage}</p>
                     </div>
                 )}
                 <div className="card-body">
-                    <img src={baseAvatar} alt={name} onClick={imageButton} className='avatar' />
+                    <img src={baseAvatar} alt={name} onClick={handleAvatarClick} className='avatar' />
                     <input
-                        type="file"
+                        type='file'
                         ref={fileInput}
                         style={{ position: 'absolute', width: '1px', height: '1px', opacity: '0', overflow: 'hidden', border: '0', padding: '0', margin: '-1' }}
                         aria-hidden='true'
@@ -95,11 +98,11 @@ export const PhonebookItem = (props) => {
                             </>
                         )}
                         <div className="button-group">
-                            <button type="button" onClick={isUpdate ? handleSaveClick : editButton} className="btn-action" >
+                            <button type="button" onClick={isUpdate ? handleSaveClick : handleEditButton} className="btn-action" >
                                 <FontAwesomeIcon icon={isUpdate ? faSave : faPenToSquare} />
                             </button>
                             {!isUpdate && (
-                                <button onClick={() => deleteModal({ id, name })} className="btn-action" >
+                                <button onClick={() => throwDeleteModal({ id, name })} className="btn-action" >
                                     <FontAwesomeIcon icon={faTrash} />
                                 </button>
                             )}
@@ -111,4 +114,4 @@ export const PhonebookItem = (props) => {
     )
 }
 
-export default PhonebookItem;
+export default PhonebookItem

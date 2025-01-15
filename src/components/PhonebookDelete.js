@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
 import { request } from '../services/PhonebookApi';
 
 export const PhonebookDelete = (props) => {
     const { id, name, deletePhonebook, closeDeleteModal } = props;
-    const [alertMessage, setAlertMessage] = useState('');
-    const [showAlert, setShowAlert] = useState(false);
 
-    const showingModal = async () => {
+    const handleShowingModal = async () => {
         try {
             await request.delete(id.toString());
             deletePhonebook(id);
             closeDeleteModal();
         } catch (error) {
             console.error('Error deleting data:', error);
-            setAlertMessage('Failed to delete. Please try again.');
-            setShowAlert(true);
+            console.log(error, 'this is work');
+
         }
     }
 
@@ -28,11 +25,10 @@ export const PhonebookDelete = (props) => {
                     </div>
                     <div className='modal-body'>
                         <p>Do You want to delete this Item: '{name}'?</p>
-                        {showAlert && <p className='alert'>{alertMessage}</p>}
                     </div>
                     <div className='modal-footer'>
                         <button type='button' className='btn-brown' onClick={closeDeleteModal}>No</button>
-                        <button type='button' className='btn-brown' onClick={showingModal}>Yes</button>
+                        <button type='button' className='btn-brown' onClick={handleShowingModal}>Yes</button>
                     </div>
                 </div>
             </div>
@@ -40,4 +36,3 @@ export const PhonebookDelete = (props) => {
     );
 }
 
-export default PhonebookDelete;

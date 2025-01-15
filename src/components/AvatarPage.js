@@ -1,93 +1,149 @@
-// import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { faPenToSquare, faSave, faTrash } from "@fortawesome/free-solid-svg-icons";
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { request, url } from "../services/PhonebookApi";
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { request, url } from '../services/PhonebookApi';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faCamera } from '@fortawesome/free-solid-svg-icons';
 
-// export const PhonebookItem = (props) => {
-//     const { id, name, phone, avatar, updatePhonebook, deleteModal } = props;
-//     const [isUpdate, setIsUpdate] = useState(false);
-//     const [updateName, setUpdateName] = useState(name);
-//     const [updatePhone, setUpdatePhone] = useState(phone);
-//     const [alertMessage, setAlertMessage] = useState('');
-//     const [showAlert, setShowAlert] = useState(false);
-//     const navigate = useNavigate();
+export const AvatarPage = (props) => {
+    const { id } = useParams('')
+    const { updatePhonebookItem } = props;
+    const [contact, setContact] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const fileInput = useRef(null);
+    const navigate = useNavigate();
 
-//     const saveButton = async () => {
-//         setIsUpdate(false);
-//         try {
-//             const response = await request.put(id.toString(), {
-//                 name: updateName,
-//                 phone: updatePhone,
-//             });
-//             updatePhonebook(id, response.data);
-//         } catch (error) {
-//             console.error('Error updating data:', error);
-//             setAlertMessage('Failed to update. Please try again.');
-//             setShowAlert(true);
-//         }
-//     };
+    useEffect(() => {
+        const fetchContact = async () => {
+            try {
+                const response = await request.get(id);
+                setContact(response.data);
+                const avatarUrl = response.data.avatar
+                    ? `${url()}/images/${id}/avatar/${response.data.avatar}}`
+                    : `${url()}/images/default.png`;
+                setPreviewUrl(avatarUrl);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchContact();
+    }, [id]);
 
-//     let baseAvatar = `${url()}/images/${id}/${avatar}`;
-//     if (!avatar) {
-//         baseAvatar = `${url()}/images/default-avatar.png`;
-//     }
+    useEffect(() => {
+        return () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        }
+    }, [previewUrl]);
 
-//     const editButton = () => {
-//         setIsUpdate(true);
-//     }
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        console.log('Selected file:', file);
+        if (file) {
+            if (!file.type.match(/^image\/(jpeg|png|gif)$/i)) {
+                alert('Please select an image file (JPEG, PNG, or GIF)');
+                console.warn('Invalid file type:', file.type);
+                return;
+            }
+            const formData = new FormData();
+            formData.append('avatar', file);
+            console.log('FormData prepared:', formData);
+            try {
+                const response = await request.put(`/${id}/avatar`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                updatePhonebookItem(id, response.data)
+            } catch (err) {
+                alert('Failed to update avatar. Please try again.');
+                console.log(err);
+            }
+            setSelectedFile(file);
+            setPreviewUrl(URL.createObjectURL(file));
+            console.log('Preview URL set:', URL.createObjectURL(file));
+        }
+    };
 
-//     const handleAvatarClick = () => {
-//         navigate(`/avatar/${id}`);
-//     }
 
-//     const closeButton = () => {
-//         setShowAlert(false);
-//     }
+    const handleSave = async (e) => {
+        const formData = new FormData();
+        formData.append('avatar', selectedFile);
 
-//     return (
-//         <>
-//             <div className="card">
-//                 {showAlert && (
-//                     <div className='alert' id='alert' role='alert'>
-//                         <button className='close-btn' onClick={closeButton}>X</button>
-//                         <p id='alert-Message'>{alertMessage}</p>
-//                     </div>
-//                 )}
-//                 <div className="card-body">
-//                     <img
-//                         src={baseAvatar}
-//                         alt={name}
-//                         onClick={handleAvatarClick}
-//                         className='avatar'
-//                     />
-//                     <div className="card-content">
-//                         {isUpdate ? (
-//                             <>
-//                                 <input type="text" value={updateName} onChange={(e) => setUpdateName(e.target.value)} className="form-control" />
-//                                 <input type="text" value={updatePhone} onChange={(e) => setUpdatePhone(e.target.value)} className="form-control" />
-//                             </>
-//                         ) : (
-//                             <>
-//                                 <p className="card-text">{name}</p>
-//                                 <p className="card-text">{phone}</p>
-//                             </>
-//                         )}
-//                         <div className="button-group">
-//                             <button type="button" onClick={isUpdate ? saveButton : editButton} className="btn-action" >
-//                                 <FontAwesomeIcon icon={isUpdate ? faSave : faPenToSquare} />
-//                             </button>
-//                             {!isUpdate && (
-//                                 <button onClick={() => deleteModal({ id, name })} className="btn-action" >
-//                                     <FontAwesomeIcon icon={faTrash} />
-//                                 </button>
-//                             )}
-//                         </div>
-//                     </div>
-//                 </div>
-//             </div>
-//         </>
-//     )
-// }
+        try {
+            setLoading(true);
+            const response = await request.put(`/${id}/avatar`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+                // Add these to track upload progress
+                onUploadProgress: (progressEvent) => {
+                    console.log('Upload Progress:', progressEvent.loaded / progressEvent.total * 100);
+                }
+            });
+            if (response.data) {
+                // Update local state before navigation
+                setContact(prev => ({
+                    ...prev,
+                    avatar: response.data.avatar
+                }));
+                navigate('/');
+            }
+        } catch (err) {
+            console.error('Upload Error:', err.response?.data || err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-// export default PhonebookItem;
+    const handleSaveClick = () => {
+        fileInput.current.click()
+    }
+
+
+    return (
+        <div className="avatar-page">
+            <div className="avatar-header">
+                <button className="btn-back" onClick={() => navigate('/')}>
+                    <FontAwesomeIcon icon={faArrowLeft} /> Back
+                </button>
+                <h2>Update PP</h2>
+            </div>
+
+            <div className="avatar-container">
+                <div className="avatar-preview">
+                    <img
+                        src={previewUrl}
+                        onClick={handleSaveClick}
+                        alt={contact?.name || 'avatar'}
+                        className="avatar-image"
+                    />
+                    <label className="avatar-upload-label">
+                        <FontAwesomeIcon icon={faCamera} />
+                        <input
+                            type="file"
+                            ref={fileInput}
+                            accept="jpeg,png,gif"
+                            onChange={handleFileChange}
+                            className="avatar-input"
+                        />
+                    </label>
+                </div>
+
+                <div className="avatar-actions">
+                    <button
+                        className="btn-save"
+                        onClick={handleSave}
+                        disabled={!selectedFile || loading}
+                    >
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};

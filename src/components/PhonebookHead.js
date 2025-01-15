@@ -7,15 +7,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const PhonebookHead = () => {
-    const [query, setSearchTerm] = useState('');
+    const [query, setSearchTerm] = useState(localStorage.getItem('searchQuery') || '');
     const [sortOrders, setSortOrder] = useState(localStorage.getItem('sortOrder') || 'asc');
     const navigate = useNavigate();
+
     const navigateAddForm = (e) => {
         e.preventDefault();
         navigate('/add');
     }
 
-    const searchPhonebook = (e) => {
+    const handleQueryPhonebook = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
     };
@@ -42,10 +43,10 @@ export const PhonebookHead = () => {
                     id="queryPhonebook"
                     placeholder="Search"
                     value={query}
-                    onChange={searchPhonebook}
+                    onChange={handleQueryPhonebook}
                 />
                 <div>
-                    <button type="button" onClick={navigateAddForm} className="btn-brown" id="addPhonebook">
+                    <button type="button" onClick={navigateAddForm} className="btn-add" id="addPhonebook">
                         <FontAwesomeIcon icon={faUserPlus} />
                     </button>
                 </div>

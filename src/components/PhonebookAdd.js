@@ -7,30 +7,29 @@ export const PhonebookAdd = () => {
     const [phone, setPhone] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
     const [showAlert, setShowAlert] = useState(false);
-    const Navigate = useNavigate();
+    const navigate = useNavigate();
 
-    const formSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await request.post('', { name, phone });
-            Navigate('/');
-            console.log(`name: ${name}, phone: ${phone}`);
-        } catch (error) {
-            console.error(error);
-            setAlertMessage('error', error.message);
-            setShowAlert(true);
-        }
-    }
+
 
     const cancelSubmit = (e) => {
         e.preventDefault();
-        Navigate('/');
+        navigate('/');
     }
 
     const closeButton = () => {
         setShowAlert(false);
     };
 
+    const formSubmit = async () => {
+        try {
+            await request.post('', { name, phone });
+            navigate('/');
+        } catch (error) {
+            console.error(error.code);
+            setAlertMessage('error', error.message);
+            setShowAlert(true);
+        }
+    }
 
     return (
         <>
@@ -40,36 +39,33 @@ export const PhonebookAdd = () => {
                     <p id='alert-Message'>{alertMessage}</p>
                 </div>
             )}
-            <div className='form-data'>
-                <form onSubmit={formSubmit}>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id='name'
-                        name='name'
-                        required
-                        placeholder="Name"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                    />
-                    <input
-                        type="text"
-                        className="form-control"
-                        id='phone'
-                        name='phone'
-                        required
-                        placeholder="Phone"
-                        value={phone}
-                        onChange={e => setPhone(e.target.value)}
-                    />
-                    <div className="btn-group">
-                        <button type="submit" className="btn-brown">save</button>
-                        <button onClick={cancelSubmit} className="btn-brown">cancel</button>
-                    </div>
-                </form>
-            </div>
+            <div className='form-group'>
+                <input
+                    type="text"
+                    className="form-control"
+                    id='name'
+                    name='name'
+                    required
+                    placeholder="Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                />
+                <input
+                    type="text"
+                    className="form-control"
+                    id='phone'
+                    name='phone'
+                    required
+                    placeholder="Phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                />
+                <div className="btn-group">
+                    <button type="button" onClick={formSubmit} id="saveData" className="col btn btn-brown mr-3">save</button>
+                    <button type="button" onClick={cancelSubmit} className="col btn btn-brown ml-3">cancel</button>
+                </div>
+            </div >
         </>
     );
 };
 
-export default PhonebookAdd;

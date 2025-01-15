@@ -1,7 +1,7 @@
 import React from 'react';
 import PhonebookItem from './PhonebookItem';
 
-export const PhonebookList = ({ PhonebookItems, updatePhonebook, deletePhonebook, deleteModal }) => {
+export const PhonebookList = ({ PhonebookItems, updatePhonebook, deletePhonebook, throwDeleteModal }) => {
   return (
     <div className='phonebook-list'>
       {PhonebookItems.map((item) => (
@@ -10,7 +10,7 @@ export const PhonebookList = ({ PhonebookItems, updatePhonebook, deletePhonebook
           {...item}
           updatePhonebook={updatePhonebook}
           deletePhonebook={deletePhonebook}
-          deleteModal={deleteModal}
+          throwDeleteModal={throwDeleteModal}
         />
       ))}
     </div>

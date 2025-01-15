@@ -4,23 +4,24 @@ import { throttle } from "lodash";
 import { request } from "../services/PhonebookApi";
 import { PhonebookList } from "./PhonebookList";
 import { PhonebookDelete } from "./PhonebookDelete";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons/faSpinner";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const PhonebookBox = () => {
     const [PhonebookItems, setPhonebookItems] = useState([]);
-    const [deleteModal, setDeleteModal] = useState(false);
+    const [deleteId, setToDeleteId] = useState(null);
+    const [showingDeleteModal, setDeleteModalView] = useState(false);
+    const [page, setPage] = useState(1);
     const [sortOrder, setSortOrder] = useState(localStorage.getItem("sortOrder") || "asc");
     const [searchQuery, setSearchQuery] = useState(localStorage.getItem("searchQuery") || "");
-    const [page, setPage] = useState(1);
     const [isFetch, setIsFetch] = useState(false);
     const [hasMore, setHasMore] = useState(true);
-    const [deleteId, setDeleteId] = useState(null);
     const observer = useRef();
 
     const fetchPhonebookItems = async (page, searchQuery, sortOrder) => {
         setIsFetch(true);
         try {
             const response = await request.get(`?page=${page}&keyword=${searchQuery}&sort=${sortOrder}`);
-            console.log("response", response.data);
             setPhonebookItems((prevItems) => {
                 const newItems = response.data.phonebook.filter(
                     (newItem) => !prevItems.some((item) => item.id === newItem.id)
@@ -35,12 +36,11 @@ export const PhonebookBox = () => {
         }
     };
 
-
     useEffect(() => {
         setPage(1);
         setPhonebookItems([]);
         if (!searchQuery && sortOrder === "asc") localStorage.clear();
-    }, [page, searchQuery, sortOrder]);
+    }, [searchQuery, sortOrder]);
 
     useEffect(() => {
         Promise.resolve().then(() => fetchPhonebookItems(page, searchQuery, sortOrder));
@@ -58,7 +58,7 @@ export const PhonebookBox = () => {
             }
         }, 500);
 
-        observer.current = new IntersectionObserver(observerEvent);
+        observer.current = new IntersectionObserver(observerEvent, { threshold: 1, rootMargin: "0px 0px 100px 0px" });
         if (lastPage.current) {
             observer.current.observe(lastPage.current);
         }
@@ -69,10 +69,13 @@ export const PhonebookBox = () => {
     }, [hasMore, isFetch]);
 
 
-    const updatePhonebook = (id, updatedItem) => {
+    const updatePhonebook = async (id, updatedItem) => {
         setPhonebookItems((prevItems) =>
             prevItems.map((item) => (item.id === id ? updatedItem : item))
         );
+        setPage(1);
+        setPhonebookItems([]);
+        await fetchPhonebookItems(page, searchQuery, sortOrder);
     };
 
 
@@ -80,14 +83,14 @@ export const PhonebookBox = () => {
         setPhonebookItems((prevItems) => prevItems.filter((item) => item.id !== id));
     };
 
-    const showingDeleteModal = (id) => {
-        setDeleteId(id);
-        setDeleteModal(true);
+    const throwDeleteModal = (item) => {
+        setToDeleteId(item);
+        setDeleteModalView(true);
     };
 
     const closeDeleteModal = () => {
-        setDeleteModal(false);
-        setDeleteId(null);
+        setToDeleteId(null);
+        setDeleteModalView(false);
     };
 
     return (
@@ -106,14 +109,21 @@ export const PhonebookBox = () => {
                 PhonebookItems={PhonebookItems}
                 updatePhonebook={updatePhonebook}
                 deletePhonebook={deletePhonebook}
-                showingDeleteModal={showingDeleteModal}
+                throwDeleteModal={throwDeleteModal}
             />
+            {
+                isFetch && (
+                    <div className="loading">
+                        <FontAwesomeIcon icon={faSpinner} spin size="2x " />
+                    </div>
+                )
+            }
             <div ref={lastPage}></div>
-            {deleteModal && deleteId && (
+            {showingDeleteModal && deleteId && (
                 <PhonebookDelete
                     id={deleteId.id}
                     name={deleteId.name}
-                    removePhonebook={deletePhonebook}
+                    deletePhonebook={deletePhonebook}  // Changed from removePhonebook
                     closeDeleteModal={closeDeleteModal}
                 />
             )}
