@@ -3,11 +3,12 @@ import { faArrowDownAZ } from "@fortawesome/free-solid-svg-icons/faArrowDownAZ";
 import { faArrowUpAZ } from "@fortawesome/free-solid-svg-icons/faArrowUpAZ";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons/faUserPlus";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { debounce } from "lodash"
 
-export const PhonebookHead = () => {
-    const [query, setSearchTerm] = useState(localStorage.getItem('searchQuery') || '');
+export const PhonebookHead = ({ setSearchQuery, setSort }) => {
+    const [searchQuery, setSearchTerm] = useState(localStorage.getItem('searchQuery') || '');
     const [sortOrders, setSortOrder] = useState(localStorage.getItem('sortOrder') || 'asc');
     const navigate = useNavigate();
 
@@ -16,14 +17,23 @@ export const PhonebookHead = () => {
         navigate('/add');
     }
 
+    const handleBouncedQuery = useMemo(() =>
+        debounce((keyword) => {
+            setSearchQuery(keyword); // Use prop function
+            localStorage.setItem('searchQuery', keyword);
+        }, 200),
+        [setSearchQuery]
+    );
+
     const handleQueryPhonebook = (e) => {
         const value = e.target.value;
-        setSearchTerm(value);
+        setSearchTerm(value); // Update local state
+        handleBouncedQuery(value); // Trigger debounced search
     };
 
     const handleSort = () => {
         const newSortOrder = sortOrders === 'asc' ? 'desc' : 'asc';
-        setSortOrder(newSortOrder);
+        setSort(newSortOrder);
         setSortOrder(newSortOrder);
         localStorage.setItem('sortOrder', newSortOrder);
     }
@@ -42,7 +52,7 @@ export const PhonebookHead = () => {
                     className="form-control"
                     id="queryPhonebook"
                     placeholder="Search"
-                    value={query}
+                    value={searchQuery}
                     onChange={handleQueryPhonebook}
                 />
                 <div>

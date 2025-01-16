@@ -39,7 +39,7 @@ export const PhonebookAdd = () => {
                     <p id='alert-Message'>{alertMessage}</p>
                 </div>
             )}
-            <div className='form-group'>
+            <div className='form-data'>
                 <input
                     type="text"
                     className="form-control"
@@ -61,11 +61,10 @@ export const PhonebookAdd = () => {
                     onChange={(e) => setPhone(e.target.value)}
                 />
                 <div className="btn-group">
-                    <button type="button" onClick={formSubmit} id="saveData" className="col btn btn-brown mr-3">save</button>
-                    <button type="button" onClick={cancelSubmit} className="col btn btn-brown ml-3">cancel</button>
+                    <button type="button" onClick={formSubmit} id="saveData" className="btn-brown">save</button>
+                    <button type="button" onClick={cancelSubmit} className="btn-brown">cancel</button>
                 </div>
-            </div >
+            </div>
         </>
     );
 };
-

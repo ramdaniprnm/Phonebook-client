@@ -20,7 +20,7 @@ export const AvatarPage = (props) => {
                 const response = await request.get(id);
                 setContact(response.data);
                 const avatarUrl = response.data.avatar
-                    ? `${url()}/images/${id}/avatar/${response.data.avatar}}`
+                    ? `${url()}/images/${id}/avatar/${response.data.avatar}`
                     : `${url()}/images/default.png`;
                 setPreviewUrl(avatarUrl);
             } catch (error) {
@@ -42,30 +42,42 @@ export const AvatarPage = (props) => {
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
-        console.log('Selected file:', file);
-        if (file) {
+        if (!file) return;
+
+        try {
+            // Validate file type
             if (!file.type.match(/^image\/(jpeg|png|gif)$/i)) {
                 alert('Please select an image file (JPEG, PNG, or GIF)');
-                console.warn('Invalid file type:', file.type);
                 return;
             }
+
+            // Create preview immediately
+            setPreviewUrl(URL.createObjectURL(file));
+            setSelectedFile(file);
+
+            // Prepare and send the file
             const formData = new FormData();
             formData.append('avatar', file);
-            console.log('FormData prepared:', formData);
-            try {
-                const response = await request.put(`/${id}/avatar`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-                updatePhonebookItem(id, response.data)
-            } catch (err) {
-                alert('Failed to update avatar. Please try again.');
-                console.log(err);
+
+            const response = await request.put(`${id}/avatar`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    console.log('Upload Progress:', percentCompleted);
+                }
+            });
+
+            if (response.data) {
+                setContact(prev => ({
+                    ...prev,
+                    avatar: response.data.avatar
+                }));
             }
-            setSelectedFile(file);
-            setPreviewUrl(URL.createObjectURL(file));
-            console.log('Preview URL set:', URL.createObjectURL(file));
+        } catch (err) {
+            console.error('Upload Error:', err.response?.data || err.message);
+            alert('Failed to update avatar. Please try again.');
         }
     };
 
@@ -127,13 +139,13 @@ export const AvatarPage = (props) => {
                         <input
                             type="file"
                             ref={fileInput}
-                            accept="jpeg,png,gif"
+                            accept="image/jpeg,image/png,image/gif"
+
                             onChange={handleFileChange}
                             className="avatar-input"
                         />
                     </label>
                 </div>
-
                 <div className="avatar-actions">
                     <button
                         className="btn-save"

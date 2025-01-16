@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PhonebookHead from "./PhonebookHead";
-import { throttle } from "lodash";
+import { set, throttle } from "lodash";
 import { request } from "../services/PhonebookApi";
 import { PhonebookList } from "./PhonebookList";
 import { PhonebookDelete } from "./PhonebookDelete";
@@ -12,7 +12,7 @@ export const PhonebookBox = () => {
     const [deleteId, setToDeleteId] = useState(null);
     const [showingDeleteModal, setDeleteModalView] = useState(false);
     const [page, setPage] = useState(1);
-    const [sortOrder, setSortOrder] = useState(localStorage.getItem("sortOrder") || "asc");
+    const [sortOrder, setSort] = useState(localStorage.getItem("sortOrder") || "asc");
     const [searchQuery, setSearchQuery] = useState(localStorage.getItem("searchQuery") || "");
     const [isFetch, setIsFetch] = useState(false);
     const [hasMore, setHasMore] = useState(true);
@@ -96,12 +96,12 @@ export const PhonebookBox = () => {
     return (
         <>
             <PhonebookHead
-                searchQuery={(query) => {
-                    setSearchQuery(query);
+                setSearchQuery={(keyword) => {
+                    setSearchQuery(keyword);
                     setPage(1);
                 }}
-                sortOrder={(order) => {
-                    setSortOrder(order);
+                setSort={(order) => {
+                    setSort(order);
                     setPage(1);
                 }}
             />
@@ -123,7 +123,7 @@ export const PhonebookBox = () => {
                 <PhonebookDelete
                     id={deleteId.id}
                     name={deleteId.name}
-                    deletePhonebook={deletePhonebook}  // Changed from removePhonebook
+                    deletePhonebook={deletePhonebook}
                     closeDeleteModal={closeDeleteModal}
                 />
             )}
