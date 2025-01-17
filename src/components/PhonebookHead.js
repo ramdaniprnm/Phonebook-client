@@ -59,7 +59,7 @@ export const PhonebookHead = ({ setSearchQuery, setSort }) => {
             <button type="button" onClick={navigateAddForm} className="btn-add" id="addPhonebook">
                 <FontAwesomeIcon icon={faUserPlus} />
             </button>
-        </div>
+        </div >
     )
 };
 

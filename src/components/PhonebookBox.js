@@ -21,7 +21,7 @@ export const PhonebookBox = () => {
     const fetchPhonebookItems = async (page, searchQuery, sortOrder) => {
         setIsFetch(true);
         try {
-            const response = await request.get(`?page=${page}&keyword=${searchQuery}&sort=${sortOrder}`);
+            const response = await request.get(`api/phonebook/?page=${page}&keyword=${searchQuery}&sort=${sortOrder}`);
             setPhonebookItems((prevItems) => {
                 const newItems = response.data.phonebook.filter(
                     (newItem) => !prevItems.some((item) => item.id === newItem.id)

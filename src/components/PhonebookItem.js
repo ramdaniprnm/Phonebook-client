@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { faPenToSquare, faSave, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { request, url } from "../services/PhonebookApi";
+import { request } from "../services/PhonebookApi";
 import { useNavigate } from "react-router-dom";
 
 const PhonebookItem = (props) => {
@@ -62,11 +62,10 @@ const PhonebookItem = (props) => {
 
 
 
-    let baseAvatar = `${url()}/images/${id}/${avatar}`;
+    let baseAvatar = `http://192.168.1.7:3003/images/${id}/${avatar}`;
     if (!avatar) {
-        baseAvatar = `${url()}/images/default.png`;
+        baseAvatar = `http://192.168.1.7:3003/images/default.png`;
         console.log(`path to images`, baseAvatar);
-
     }
 
 

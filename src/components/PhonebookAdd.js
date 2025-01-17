@@ -9,8 +9,6 @@ export const PhonebookAdd = () => {
     const [showAlert, setShowAlert] = useState(false);
     const navigate = useNavigate();
 
-
-
     const cancelSubmit = (e) => {
         e.preventDefault();
         navigate('/');
@@ -22,7 +20,7 @@ export const PhonebookAdd = () => {
 
     const formSubmit = async () => {
         try {
-            await request.post('', { name, phone });
+            await request.post('http://localhost:3003/api/phonebook', { name, phone, avatar: 'default.png' });
             navigate('/');
         } catch (error) {
             console.error(error.code);

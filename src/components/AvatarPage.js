@@ -4,113 +4,63 @@ import { request, url } from '../services/PhonebookApi';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faCamera } from '@fortawesome/free-solid-svg-icons';
 
-export const AvatarPage = (props) => {
+export const AvatarPage = () => {
     const { id } = useParams('')
-    const { updatePhonebookItem } = props;
-    const [contact, setContact] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFile, setSelectedFile] = useState('http://192.168.1.7:3000/default.png');
     const [loading, setLoading] = useState(true);
     const fileInput = useRef(null);
     const navigate = useNavigate();
+    let selectedImage = null
+
+    console.log('image default in homepage', selectedFile);
+
 
     useEffect(() => {
-        const fetchContact = async () => {
+        const fetchAvatar = async () => {
             try {
-                const response = await request.get(id);
-                setContact(response.data);
-                const avatarUrl = response.data.avatar
-                    ? `${url()}/images/${id}/avatar/${response.data.avatar}`
-                    : `${url()}/images/default.png`;
-                setPreviewUrl(avatarUrl);
+                const response = await request.get(`api/phonebook/${id}`);
+                console.log('request image', response);
+                if (response.data.avatar) setSelectedFile(`http://192.168.1.7:3003/images/${response.data.avatar}`);
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error fetching Avatar:', error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchContact();
+        fetchAvatar();
     }, [id]);
 
-    useEffect(() => {
-        return () => {
-            if (previewUrl) {
-                URL.revokeObjectURL(previewUrl);
-            }
-        }
-    }, [previewUrl]);
-
-    const handleFileChange = async (e) => {
+    const handleFileChange = (e) => {
         const file = e.target.files[0];
-        if (!file) return;
-
-        try {
-            // Validate file type
-            if (!file.type.match(/^image\/(jpeg|png|gif)$/i)) {
-                alert('Please select an image file (JPEG, PNG, or GIF)');
-                return;
-            }
-
-            // Create preview immediately
-            setPreviewUrl(URL.createObjectURL(file));
+        if (file) {
             setSelectedFile(file);
-
-            // Prepare and send the file
-            const formData = new FormData();
-            formData.append('avatar', file);
-
-            const response = await request.put(`${id}/avatar`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                },
-                onUploadProgress: (progressEvent) => {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    console.log('Upload Progress:', percentCompleted);
-                }
-            });
-
-            if (response.data) {
-                setContact(prev => ({
-                    ...prev,
-                    avatar: response.data.avatar
-                }));
-            }
-        } catch (err) {
-            console.error('Upload Error:', err.response?.data || err.message);
-            alert('Failed to update avatar. Please try again.');
+            setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!selectedImage) return;
+        console.log('selected image', selectedImage);
 
-    const handleSave = async (e) => {
         const formData = new FormData();
         formData.append('avatar', selectedFile);
-
+        console.log('formdata', formData);
         try {
-            setLoading(true);
-            const response = await request.put(`/${id}/avatar`, formData, {
+            const response = await request.put(`api/phonebook/${id}/avatar`, FormData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
-                },
-                // Add these to track upload progress
-                onUploadProgress: (progressEvent) => {
-                    console.log('Upload Progress:', progressEvent.loaded / progressEvent.total * 100);
                 }
             });
             if (response.data) {
-                // Update local state before navigation
-                setContact(prev => ({
-                    ...prev,
-                    avatar: response.data.avatar
-                }));
-                navigate('/');
+                navigate('/')
             }
-        } catch (err) {
-            console.error('Upload Error:', err.response?.data || err.message);
-        } finally {
-            setLoading(false);
+            console.log('success update data', response);
+        } catch (error) {
+            console.log(error);
         }
-    };
+    }
 
     const handleSaveClick = () => {
         fileInput.current.click()
@@ -123,15 +73,14 @@ export const AvatarPage = (props) => {
                 <button className="btn-back" onClick={() => navigate('/')}>
                     <FontAwesomeIcon icon={faArrowLeft} /> Back
                 </button>
-                <h2>Update PP</h2>
+                <h2>Update PP </h2>
             </div>
-
             <div className="avatar-container">
                 <div className="avatar-preview">
                     <img
                         src={previewUrl}
                         onClick={handleSaveClick}
-                        alt={contact?.name || 'avatar'}
+                        alt='avatar'
                         className="avatar-image"
                     />
                     <label className="avatar-upload-label">
@@ -139,21 +88,21 @@ export const AvatarPage = (props) => {
                         <input
                             type="file"
                             ref={fileInput}
-                            accept="image/jpeg,image/png,image/gif"
-
+                            accept="image/jpeg, image/png, image/jpg, image/gif"
                             onChange={handleFileChange}
                             className="avatar-input"
                         />
                     </label>
                 </div>
                 <div className="avatar-actions">
-                    <button
-                        className="btn-save"
-                        onClick={handleSave}
-                        disabled={!selectedFile || loading}
-                    >
-                        Save Changes
-                    </button>
+                    <form onSubmit={handleSubmit}>
+                        <button type='submit'
+                            className="btn-save"
+                            disabled={!selectedFile}
+                        >
+                            Save Changes
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
