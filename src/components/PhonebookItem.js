@@ -64,49 +64,50 @@ const PhonebookItem = (props) => {
 
     let baseAvatar = `${url()}/images/${id}/${avatar}`;
     if (!avatar) {
-        baseAvatar = `${url()}/images/'default.png'`;
+        baseAvatar = `${url()}/images/default.png`;
+        console.log(`path to images`, baseAvatar);
+
     }
+
 
     return (
         <>
-            <div className="card">
-                {showAlert && (
-                    <div className='alert' id='alert' role='alert'>
-                        <button className='close-btn' onClick={handleCloseButton}>X</button>
-                        <p id='alert-Message'>{alertMessage}</p>
-                    </div>
-                )}
-                <div className="card-body">
-                    <img src={baseAvatar} alt={name} onClick={handleAvatarClick} className='avatar' />
-                    <input
-                        type='file'
-                        ref={fileInput}
-                        style={{ position: 'absolute', width: '1px', height: '1px', opacity: '0', overflow: 'hidden', border: '0', padding: '0', margin: '-1' }}
-                        aria-hidden='true'
-                        onChange={handleSaveFile}
-                    />
-                    <div className="card-content">
-                        {isUpdate ? (
-                            <>
-                                <input type="text" value={updateName} onChange={(e) => setUpdateName(e.target.value)} className="form-control" />
-                                <input type="text" value={updatePhone} onChange={(e) => setUpdatePhone(e.target.value)} className="form-control" />
-                            </>
-                        ) : (
-                            <>
-                                <p className="card-text">{name}</p>
-                                <p className="card-text">{phone}</p>
-                            </>
-                        )}
-                        <div className="button-group">
-                            <button type="button" onClick={isUpdate ? handleSaveClick : handleEditButton} className="btn-action" >
-                                <FontAwesomeIcon icon={isUpdate ? faSave : faPenToSquare} />
+            {showAlert && (
+                <div className='alert' id='alert' role='alert'>
+                    <button className='close-btn' onClick={handleCloseButton}>X</button>
+                    <p id='alert-Message'>{alertMessage}</p>
+                </div>
+            )}
+            <div className="card-body">
+                <img src={baseAvatar} alt={name} onClick={handleAvatarClick} className='avatar' />
+                <input
+                    type='file'
+                    ref={fileInput}
+                    style={{ position: 'absolute', width: '1px', height: '1px', opacity: '0', overflow: 'hidden', border: '0', padding: '0', margin: '-1' }}
+                    aria-hidden='true'
+                    onChange={handleSaveFile}
+                />
+                <div className="card-content">
+                    {isUpdate ? (
+                        <>
+                            <input type="text" value={updateName} onChange={(e) => setUpdateName(e.target.value)} className="form-control" />
+                            <input type="text" value={updatePhone} onChange={(e) => setUpdatePhone(e.target.value)} className="form-control" />
+                        </>
+                    ) : (
+                        <>
+                            <p className="card-text">{name}</p>
+                            <p className="card-text">{phone}</p>
+                        </>
+                    )}
+                    <div className="button-group">
+                        <button type="button" onClick={isUpdate ? handleSaveClick : handleEditButton} className="btn-action" >
+                            <FontAwesomeIcon icon={isUpdate ? faSave : faPenToSquare} />
+                        </button>
+                        {!isUpdate && (
+                            <button onClick={() => throwDeleteModal({ id, name })} className="btn-action" >
+                                <FontAwesomeIcon icon={faTrash} />
                             </button>
-                            {!isUpdate && (
-                                <button onClick={() => throwDeleteModal({ id, name })} className="btn-action" >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                </button>
-                            )}
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -39,7 +39,7 @@ export const PhonebookHead = ({ setSearchQuery, setSort }) => {
     }
 
     return (
-        <div className="nav sticky-top">
+        <div className="nav">
             <button className="btn-sort" id="sortPhonebook" onClick={handleSort} >
                 <FontAwesomeIcon icon={sortOrders === 'asc' ? faArrowUpAZ : faArrowDownAZ} />
             </button>
@@ -55,12 +55,10 @@ export const PhonebookHead = ({ setSearchQuery, setSort }) => {
                     value={searchQuery}
                     onChange={handleQueryPhonebook}
                 />
-                <div>
-                    <button type="button" onClick={navigateAddForm} className="btn-add" id="addPhonebook">
-                        <FontAwesomeIcon icon={faUserPlus} />
-                    </button>
-                </div>
             </div>
+            <button type="button" onClick={navigateAddForm} className="btn-add" id="addPhonebook">
+                <FontAwesomeIcon icon={faUserPlus} />
+            </button>
         </div>
     )
 };
