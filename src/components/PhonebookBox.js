@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import PhonebookHead from "./PhonebookHead";
-import { set, throttle } from "lodash";
+import { throttle } from "lodash";
 import { request } from "../services/PhonebookApi";
 import { PhonebookList } from "./PhonebookList";
 import { PhonebookDelete } from "./PhonebookDelete";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons/faSpinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+
 
 export const PhonebookBox = () => {
     const [PhonebookItems, setPhonebookItems] = useState([]);
@@ -16,7 +18,10 @@ export const PhonebookBox = () => {
     const [searchQuery, setSearchQuery] = useState(localStorage.getItem("searchQuery") || "");
     const [isFetch, setIsFetch] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+    const id = localStorage.getItem('id');
     const observer = useRef();
+    const lastPage = useRef();
+
 
     const fetchPhonebookItems = async (page, searchQuery, sortOrder) => {
         setIsFetch(true);
@@ -36,18 +41,52 @@ export const PhonebookBox = () => {
         }
     };
 
+    // const removeResend = async (_id) => {
+    //     try {
+    //         const data = await request.delete(`api/phonebook/${_id}`);
+    //         setPhonebook()
+    //     } catch (error) {
+    //         console.error("Error Resend Remove data:", error);
+    //     }
+    // }
+
+    // const resendClient = async () => {
+    //     try {
+    //         const data = await request.post('api/phonebook',);
+    //     } catch (error) {
+    //         console.error("Error Resend data:", error);
+    //     };
+    // }
+
+    const loadData = async () => {
+        try {
+            const data = await request.get(`api/phonebook?limit=10&id=${id}`);
+            console.log('load data', data.data.phonebook);
+        } catch (error) {
+            console.error("Error loadData data:", error);
+        };
+    }
+
+    // useEffect 1(loadData)
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    // useEffect 2
     useEffect(() => {
         setPage(1);
         setPhonebookItems([]);
         if (!searchQuery && sortOrder === "asc") localStorage.clear();
     }, [searchQuery, sortOrder]);
 
+
+    // useEffect 3
     useEffect(() => {
         Promise.resolve().then(() => fetchPhonebookItems(page, searchQuery, sortOrder));
     }, [page, searchQuery, sortOrder]);
 
-    const lastPage = useRef();
 
+    // useEffect 3
     useEffect(() => {
         if (isFetch) return;
         if (observer.current) observer.current.disconnect();

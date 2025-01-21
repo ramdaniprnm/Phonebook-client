@@ -44,6 +44,8 @@ body {
 }
 
 .nav {
+  position: sticky;
+  top: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -53,15 +55,31 @@ body {
 }
 
 
+.adding-form {
+    display: flex;
+    justify-content: center;
+    border-radius: 5px;
+    width: 100%;
+    height: 40px;
+    padding: 5px;
+    box-sizing: border-box;
+    margin-top: 5px 
+}
+
 .form-control {
   display: flex;
+  position: sticky;
   justify-content: center;
   border-radius: 5px;
   width: 100%;
   height: 40px;
   padding: 5px;
   box-sizing: border-box;
+  margin-right: 10px;
+  margin-left: -40px;
+  padding-left: 30px;
 }
+
 
 
 /* Contact Card Styles */
@@ -109,7 +127,7 @@ body {
 .btn-group {
   display: flex;
   gap: 15px;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .btn-brown {
@@ -132,22 +150,14 @@ body {
   flex: 1;
 }
 
-.search-bar {
-  display: flex;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  padding: 0;
-  flex: 1;
-}
 
 .search-btn {
   padding: 10px;
   color: #666;
   display: flex;
   align-items: flex-start;
-  background-color: white;
-  padding: 15px
+  padding: 15px;
+  z-index: 1;
 }
 
 .search-bar {
@@ -158,8 +168,12 @@ body {
   font-size: 14px;
 }
 
+.div.sticky {
+  position: sticky;
+}
+
 .btn-sort {
-  padding: 10px auto;
+  margin-left: 5px; 
   background-color: #b8860b;
   color: white;
   border: none;
@@ -173,6 +187,7 @@ body {
 }
 
 .btn-add {
+  margin-right: 5px;
   background-color: #b8860b;
   color: white;
   border: none;
@@ -237,8 +252,7 @@ body {
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 5px;
   margin: 0 auto;
 }
 
@@ -352,6 +366,9 @@ body {
   border-radius: 4px;
   cursor: pointer;
   transition: 0.3s ease;
+  margin-top: 10px;
+  margin-left: 45px;
+  
 }
 
 .btn-save:hover {

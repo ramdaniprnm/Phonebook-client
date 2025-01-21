@@ -20,7 +20,7 @@ export const PhonebookAdd = () => {
 
     const formSubmit = async () => {
         try {
-            await request.post('http://localhost:3003/api/phonebook', { name, phone, avatar: 'default.png' });
+            await request.post('http://localhost:3003/api/phonebook', { name, phone, avatar: null });
             navigate('/');
         } catch (error) {
             console.error(error.code);
@@ -38,30 +38,32 @@ export const PhonebookAdd = () => {
                 </div>
             )}
             <div className='form-data'>
-                <input
-                    type="text"
-                    className="form-control"
-                    id='name'
-                    name='name'
-                    required
-                    placeholder="Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-                <input
-                    type="text"
-                    className="form-control"
-                    id='phone'
-                    name='phone'
-                    required
-                    placeholder="Phone"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                />
-                <div className="btn-group">
-                    <button type="button" onClick={formSubmit} id="saveData" className="btn-brown">save</button>
-                    <button type="button" onClick={cancelSubmit} className="btn-brown">cancel</button>
-                </div>
+                <form onSubmit={e => e.preventDefault()}>
+                    <input
+                        type="text"
+                        className="adding-form"
+                        id='name'
+                        name='name'
+                        required
+                        placeholder="Name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                    />
+                    <input
+                        type="text"
+                        className="adding-form"
+                        id='phone'
+                        name='phone'
+                        required
+                        placeholder="Phone"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                    />
+                    <div className="btn-group">
+                        <button type="submit" onClick={formSubmit} id="saveData" className="btn-brown">save</button>
+                        <button type="submit" onClick={cancelSubmit} className="btn-brown">cancel</button>
+                    </div>
+                </form>
             </div>
         </>
     );

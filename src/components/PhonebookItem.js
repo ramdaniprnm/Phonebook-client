@@ -14,28 +14,39 @@ const PhonebookItem = (props) => {
     const fileInput = useRef(null);
     const navigate = useNavigate();
 
-    const handleEditButton = () => {
-        setIsUpdate(true);
-    }
+    let baseAvatar = `http://192.168.1.7:3003/images/${id}/${avatar}`;
+    if (!avatar) {
+        baseAvatar = `http://192.168.1.7:3003/images/default.png`;
+    };
+
+    const handleEditButton = async () => {
+        try {
+            setIsUpdate(true);
+        }
+        catch (error) {
+            console.error('Error updating handleEdit:', error);
+        }
+    };
+
 
     const handleCloseButton = () => {
         setShowAlert(false);
-    }
+    };
 
     const handleAvatarClick = () => {
         navigate(`/avatar/${id}`);
-    }
+    };
 
     const handleSaveClick = async (e) => {
         setIsUpdate(false);
         try {
-            const response = await request.put(id.toString(), {
+            const response = await request.put(`api/phonebook/${id}`, {
                 name: updateName,
                 phone: updatePhone,
             });
             updatePhonebook(id, response.data);
         } catch (error) {
-            console.error('Error updating data:', error);
+            console.error('Error updating handleSaveclick:', error);
             setAlertMessage('Failed to update. Please try again.');
         }
     };
@@ -61,14 +72,6 @@ const PhonebookItem = (props) => {
     };
 
 
-
-    let baseAvatar = `http://192.168.1.7:3003/images/${id}/${avatar}`;
-    if (!avatar) {
-        baseAvatar = `http://192.168.1.7:3003/images/default.png`;
-        console.log(`path to images`, baseAvatar);
-    }
-
-
     return (
         <>
             {showAlert && (
@@ -87,31 +90,33 @@ const PhonebookItem = (props) => {
                     onChange={handleSaveFile}
                 />
                 <div className="card-content">
-                    {isUpdate ? (
-                        <>
-                            <input type="text" value={updateName} onChange={(e) => setUpdateName(e.target.value)} className="form-control" />
-                            <input type="text" value={updatePhone} onChange={(e) => setUpdatePhone(e.target.value)} className="form-control" />
-                        </>
-                    ) : (
-                        <>
-                            <p className="card-text">{name}</p>
-                            <p className="card-text">{phone}</p>
-                        </>
-                    )}
-                    <div className="button-group">
-                        <button type="button" onClick={isUpdate ? handleSaveClick : handleEditButton} className="btn-action" >
-                            <FontAwesomeIcon icon={isUpdate ? faSave : faPenToSquare} />
-                        </button>
-                        {!isUpdate && (
-                            <button onClick={() => throwDeleteModal({ id, name })} className="btn-action" >
-                                <FontAwesomeIcon icon={faTrash} />
-                            </button>
+                    <form onSubmit={e => e.preventDefault()}>
+                        {isUpdate ? (
+                            <>
+                                <input type="text" value={updateName} onChange={(e) => setUpdateName(e.target.value)} className="adding-form" />
+                                <input type="text" value={updatePhone} onChange={(e) => setUpdatePhone(e.target.value)} className="adding-form" />
+                            </>
+                        ) : (
+                            <>
+                                <p className="card-text">{name}</p>
+                                <p className="card-text">{phone}</p>
+                            </>
                         )}
-                    </div>
+                        <div className="button-group">
+                            <button type="submit" onClick={isUpdate ? handleSaveClick : handleEditButton} className="btn-action" >
+                                <FontAwesomeIcon icon={isUpdate ? faSave : faPenToSquare} />
+                            </button>
+                            {!isUpdate && (
+                                <button type="submit" onClick={() => throwDeleteModal({ id, name })} className="btn-action" >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </button>
+                            )}
+                        </div>
+                    </form>
                 </div>
             </div>
         </>
     )
-}
+};
 
 export default PhonebookItem
