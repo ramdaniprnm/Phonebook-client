@@ -19,6 +19,10 @@ export const PhonebookAdd = () => {
     };
 
     const formSubmit = async () => {
+        if (name === '' || phone === '') {
+            alert('Name and Phone number cannot be empty');
+            return;
+        }
         try {
             await request.post('http://localhost:3003/api/phonebook', { name, phone, avatar: null });
             navigate('/');
@@ -28,6 +32,7 @@ export const PhonebookAdd = () => {
             setShowAlert(true);
         }
     }
+
 
     return (
         <>
