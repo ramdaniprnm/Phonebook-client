@@ -1,21 +1,21 @@
 import './App.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { RoutesBox } from './routes/RoutesBox';
-import { RoutesForm } from './routes/RoutesForm';
-import { RoutesAvatar } from './routes/RoutesAvatar';
+import { PhonebookBox } from './components/PhonebookBox';
+import { PhonebookAdd } from './components/PhonebookAdd';
+import AvatarPage from './components/AvatarPage';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <RoutesBox />,
+    element: <PhonebookBox />,
   },
   {
     path: "/add",
-    element: <RoutesForm />,
+    element: <PhonebookAdd />,
   },
   {
     path: "/avatar/:id",
-    element: <RoutesAvatar />,
+    element: <AvatarPage />,
   }
 ]);
 

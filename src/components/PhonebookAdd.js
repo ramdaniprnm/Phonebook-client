@@ -19,6 +19,10 @@ export const PhonebookAdd = () => {
     };
 
     const formSubmit = async () => {
+        if (!name || !phone) {
+            alert('Name and phone number are required');
+            return;
+        }
         try {
             await request.post('http://localhost:3003/api/phonebook', { name, phone, avatar: null });
             navigate('/');

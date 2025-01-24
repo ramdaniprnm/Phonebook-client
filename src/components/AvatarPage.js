@@ -107,3 +107,5 @@ export const AvatarPage = (props) => {
         </div>
     );
 };
+
+export default AvatarPage;
