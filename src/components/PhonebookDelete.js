@@ -5,7 +5,7 @@ export const PhonebookDelete = (props) => {
 
     const handleShowingModal = async () => {
         try {
-            await request.delete(id.toString());
+            await request.delete(`api/phonebook/${id}`);
             deletePhonebook(id);
             closeDeleteModal();
         } catch (error) {
