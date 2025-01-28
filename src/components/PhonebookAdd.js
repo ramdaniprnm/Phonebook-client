@@ -23,13 +23,25 @@ export const PhonebookAdd = () => {
             alert('Name and phone number are required');
             return;
         }
+        
+        const newItem = {
+            id: Date.now(), // Temporary local ID
+            name,
+            phone,
+            avatar: null,
+            synced: false
+        };
+    
         try {
-            await request.post('http://localhost:3003/api/phonebook', { name, phone, avatar: null });
+            await request.post('api/phonebook', { name, phone, avatar: null });
             navigate('/');
         } catch (error) {
-            console.error(error.code);
-            setAlertMessage('error', error.message);
-            setShowAlert(true);
+            if (!error.response) { // Network error
+                const pendingItems = JSON.parse(localStorage.getItem('pendingItems') || '[]');
+                pendingItems.push(newItem);
+                localStorage.setItem('pendingItems', JSON.stringify(pendingItems));
+                navigate('/');
+            }
         }
     }
 

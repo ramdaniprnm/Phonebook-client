@@ -1,11 +1,12 @@
-import React, { useRef, useState } from "react";
-import { faPenToSquare, faSave, faTrash } from "@fortawesome/free-solid-svg-icons";
+import React, { useCallback, useRef, useState } from "react";
+import { faPenToSquare, faRotate, faSave, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { request } from "../services/PhonebookApi";
 import { useNavigate } from "react-router-dom";
+import { PhonebookList } from "./PhonebookList";
 
 const PhonebookItem = (props) => {
-    const { id, name, phone, avatar, updatePhonebook, throwDeleteModal } = props;
+    const { id, name, phone, avatar, updatePhonebook, throwDeleteModal, synced, resend } = props;
     const [isUpdate, setIsUpdate] = useState(false);
     const [updateName, setUpdateName] = useState(name);
     const [updatePhone, setUpdatePhone] = useState(phone);
@@ -71,52 +72,103 @@ const PhonebookItem = (props) => {
         }
     };
 
+//     const removeResend = useCallback((_id) => {
+//         request.delete(`api/phonebook/${_id}`).then(() => {
+//             setData(state => state.filter(item => item._id !== data._id));
+//         }).catch((error) => {
+//             console.error('Error removing:', error);
+//         });
+//     }, [])
 
-    return (
-        <>
-            {showAlert && (
-                <div className='alert' id='alert' role='alert'>
-                    <button className='close-btn' onClick={handleCloseButton}>X</button>
-                    <p id='alert-Message'>{alertMessage}</p>
-                </div>
-            )}
-            <div className="card-body">
-                <img src={baseAvatar} alt={name} onClick={handleAvatarClick} className='avatar' />
-                <input
-                    type='file'
-                    ref={fileInput}
-                    style={{ position: 'absolute', width: '1px', height: '1px', opacity: '0', overflow: 'hidden', border: '0', padding: '0', margin: '-1' }}
-                    aria-hidden='true'
-                    onChange={handleSaveFile}
-                />
-                <div className="card-content">
-                    <form onSubmit={e => e.preventDefault()}>
-                        {isUpdate ? (
-                            <>
-                                <input type="text" value={updateName} onChange={(e) => setUpdateName(e.target.value)} className="adding-form" />
-                                <input type="text" value={updatePhone} onChange={(e) => setUpdatePhone(e.target.value)} className="adding-form" />
-                            </>
-                        ) : (
-                            <>
-                                <p className="card-text">{name}</p>
-                                <p className="card-text">{phone}</p>
-                            </>
-                        )}
-                        <div className="button-group">
-                            <button type="submit" onClick={isUpdate ? handleSaveClick : handleEditButton} className="btn-action" >
-                                <FontAwesomeIcon icon={isUpdate ? faSave : faPenToSquare} />
-                            </button>
-                            {!isUpdate && (
-                                <button type="submit" onClick={() => throwDeleteModal({ id, name })} className="btn-action" >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                </button>
-                            )}
-                        </div>
-                    </form>
-                </div>
+//     const resendItem = useCallback((phonebook) => {
+//             request.post(`api/phonebook`, {
+//                 name: phonebook.name,
+//                 phone: phonebook.phone
+//             }).then(({data}) => {
+//                 setData(state => state.map(item => {
+//                     if (item._id === data._id) {
+//                     data.sent = true
+//                 }
+//             return item
+//         }))
+//     })    
+// }, []);
+
+return (
+    <>
+        {showAlert && (
+            <div className='alert' id='alert' role='alert'>
+                <button className='close-btn' onClick={() => setShowAlert(false)}>X</button>
+                <p id='alert-Message'>{alertMessage}</p>
             </div>
-        </>
-    )
-};
+        )}
+        <div className="card-body">
+            <img src={baseAvatar} alt={name} onClick={() => navigate(`/avatar/${id}`)} className='avatar' />
+            <input
+                type='file'
+                ref={fileInput}
+                style={{ display: 'none' }}
+                onChange={handleSaveFile}
+            />
+            <div className="card-content">
+                <form onSubmit={e => e.preventDefault()}>
+                    {isUpdate ? (
+                        <>
+                            <input 
+                                type="text" 
+                                value={updateName} 
+                                onChange={(e) => setUpdateName(e.target.value)} 
+                                className="adding-form" 
+                            />
+                            <input 
+                                type="text" 
+                                value={updatePhone} 
+                                onChange={(e) => setUpdatePhone(e.target.value)} 
+                                className="adding-form" 
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <p className="card-text">{name}</p>
+                            <p className="card-text">{phone}</p>
+                        </>
+                    )}
+                    <div className="button-group">
+                        <button 
+                            type="button" 
+                            onClick={isUpdate ? handleSaveClick : () => setIsUpdate(true)} 
+                            className="btn-action"
+                        >
+                            <FontAwesomeIcon icon={isUpdate ? faSave : faPenToSquare} />
+                        </button>
+                        
+                        {!isUpdate && (
+                            <button 
+                                type="button" 
+                                onClick={() => throwDeleteModal({ id, name })} 
+                                className="btn-action"
+                            >
+                                <FontAwesomeIcon icon={faTrash} />
+                            </button>
+                        )}
 
+                        {!synced && (
+                            <button 
+                                type="button" 
+                                onClick={() => resend({ id, name, phone, avatar })} 
+                                className="btn-action"
+                                title="Resend"
+                            >
+                                <FontAwesomeIcon 
+                                    icon={faRotate} 
+                                />
+                            </button>
+                        )}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </>
+);
+};
 export default PhonebookItem

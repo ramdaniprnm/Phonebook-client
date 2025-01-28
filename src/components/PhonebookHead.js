@@ -7,9 +7,8 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash"
 
-export const PhonebookHead = ({ setSearchQuery, setSort }) => {
+export const PhonebookHead = ({ setSearchQuery, setSort, sortOrder }) => {
     const [searchQuery, setSearchTerm] = useState(localStorage.getItem('searchQuery') || '');
-    const [sortOrders, setSortOrder] = useState(localStorage.getItem('sortOrder') || 'asc');
     const navigate = useNavigate();
 
     const navigateAddForm = (e) => {
@@ -32,16 +31,14 @@ export const PhonebookHead = ({ setSearchQuery, setSort }) => {
     };
 
     const handleSort = () => {
-        const newSortOrder = sortOrders === 'asc' ? 'desc' : 'asc';
+        const newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
         setSort(newSortOrder);
-        setSortOrder(newSortOrder);
-        localStorage.setItem('sortOrder', newSortOrder);
     }
 
     return (
         <div className="nav">
             <button className="btn-sort" id="sortPhonebook" onClick={handleSort} >
-                <FontAwesomeIcon icon={sortOrders === 'asc' ? faArrowUpAZ : faArrowDownAZ} />
+                <FontAwesomeIcon icon={sortOrder === 'asc' ? faArrowUpAZ : faArrowDownAZ} />
             </button>
             <span className="search-btn">
                 <FontAwesomeIcon icon={faSearch} />

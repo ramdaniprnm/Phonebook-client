@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import PhonebookHead from "./PhonebookHead";
+import { throttle } from "lodash";
 import { request } from "../services/PhonebookApi";
 import { PhonebookList } from "./PhonebookList";
 import { PhonebookDelete } from "./PhonebookDelete";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons/faSpinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { throttle } from "lodash";
+
+
 
 export const PhonebookBox = () => {
     const [PhonebookItems, setPhonebookItems] = useState([]);
@@ -16,7 +18,6 @@ export const PhonebookBox = () => {
     const [searchQuery, setSearchQuery] = useState(localStorage.getItem("searchQuery") || "");
     const [isFetch, setIsFetch] = useState(false);
     const [hasMore, setHasMore] = useState(true);
-    const id = localStorage.getItem("id") || "";
     const observer = useRef();
     const lastPage = useRef();
 
@@ -24,7 +25,7 @@ export const PhonebookBox = () => {
     const fetchPhonebookItems = async (page, searchQuery, sortOrder) => {
         setIsFetch(true);
         try {
-            const response = await request.get(`api/phonebook?page=${page}&keyword=${searchQuery}&sort=${sortOrder}`);
+            const response = await request.get(`api/phonebook/?page=${page}&keyword=${searchQuery}&sort=${sortOrder}`);
             setPhonebookItems((prevItems) => {
                 const newItems = response.data.phonebook.filter(
                     (newItem) => !prevItems.some((item) => item.id === newItem.id)
@@ -56,22 +57,19 @@ export const PhonebookBox = () => {
     //     };
     // }
 
-    const loadData = async () => {
-        try {
-            const data = await request.get(`api/phonebook?limit=10&id=${id}`);
-            setPhonebookItems(data.data.phonebook.map(item => { item.sent = true
-                return item
-             }));
-            console.log('load data', data.data.phonebook);
-        } catch (error) {
-            console.error("Error loadData data:", error);
-        };
-    }
+    // const loadData = async () => {
+    //     try {
+    //         const data = await request.get(`api/phonebook?limit=10&id=${id}`);
+    //         console.log('load data', data.data.phonebook);
+    //     } catch (error) {
+    //         console.error("Error loadData data:", error);
+    //     };
+    // }
 
-    // useEffect 1(loadData)
-    useEffect(() => {
-        loadData();
-    }, []);
+    // // useEffect 1(loadData)
+    // useEffect(() => {
+    //     loadData();
+    // }, []);
 
     // useEffect 2
     useEffect(() => {
@@ -144,6 +142,7 @@ export const PhonebookBox = () => {
                     setSort(order);
                     setPage(1);
                 }}
+                sortOrder={sortOrder}
             />
             <PhonebookList
                 PhonebookItems={PhonebookItems}
