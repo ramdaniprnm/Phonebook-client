@@ -10,9 +10,8 @@ export const PhonebookDelete = (props) => {
             closeDeleteModal();
         } catch (error) {
             console.error('Error deleting data:', error);
-            console.log(error, 'this is work');
         }
-    }
+    };
 
     return (
         <>

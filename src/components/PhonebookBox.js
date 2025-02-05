@@ -1,37 +1,44 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import PhonebookHead from "./PhonebookHead";
-import { throttle } from "lodash";
 import { request } from "../services/PhonebookApi";
 import { PhonebookList } from "./PhonebookList";
 import { PhonebookDelete } from "./PhonebookDelete";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons/faSpinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-
+import { throttle } from "lodash";
 
 export const PhonebookBox = () => {
     const [PhonebookItems, setPhonebookItems] = useState([]);
     const [deleteId, setToDeleteId] = useState(null);
-    const [showingDeleteModal, setDeleteModalView] = useState(false);
+    const [showingDeleteModal, setDeleteModalView] = useState({ isOpen: false, contactIdRemove: null });
     const [page, setPage] = useState(1);
     const [sortOrder, setSort] = useState(localStorage.getItem("sortOrder") || "asc");
-    const [searchQuery, setSearchQuery] = useState(localStorage.getItem("searchQuery") || "");
+    const [searchQuery, setSearchQuery] = useState(JSON.parse(sessionStorage.getItem("searchQuery")) || {
+        limit: 10,
+        keyword: "",
+        sortOrder: "asc",
+        order: "name",
+    });
     const [isFetch, setIsFetch] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const observer = useRef();
     const lastPage = useRef();
 
-
-    const fetchPhonebookItems = async (page, searchQuery, sortOrder) => {
+   const fetchPhonebookItems = async (page, searchQuery, sortOrder) => {
         setIsFetch(true);
         try {
-            const response = await request.get(`api/phonebook/?page=${page}&keyword=${searchQuery}&sort=${sortOrder}`);
+            // Correct API URL parameters to use searchQuery's properties
+            const response = await request.get(
+                `api/phonebook/?page=${page}&keyword=${searchQuery.keyword}&sort=${sortOrder}&limit=${searchQuery.limit}&order=${searchQuery.order}`
+            );
             setPhonebookItems((prevItems) => {
+                // Use response.data.phonebook instead of searchQuery.data.phonebook
                 const newItems = response.data.phonebook.filter(
                     (newItem) => !prevItems.some((item) => item.id === newItem.id)
                 );
                 return [...prevItems, ...newItems];
             });
+            // Update hasMore based on response
             setHasMore(response.data.phonebook.length > 0);
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -40,38 +47,69 @@ export const PhonebookBox = () => {
         }
     };
 
-    // const removeResend = async (_id) => {
-    //     try {
-    //         const data = await request.delete(`api/phonebook/${_id}`);
-    //         setPhonebook()
-    //     } catch (error) {
-    //         console.error("Error Resend Remove data:", error);
-    //     }
-    // }
+    const loadSession = async () => {
+        try {
+            const { data } = await request.get('api/phonebook', { params: searchQuery });
+            const offlineDatas = JSON.parse(sessionStorage.getItem('local_pending') || '[]');
+            const pendingDatas = offlineDatas.filter((d => !d.status.sent));
 
-    // const resendClient = async () => {
-    //     try {
-    //         const data = await request.post('api/phonebook',);
-    //     } catch (error) {
-    //         console.error("Error Resend data:", error);
-    //     };
-    // }
+            const takeData = [
+                ...pendingDatas,
+                ...data.phonebook.map(contact => ({
+                    ...contact,
+                    status: { sent: true }
+                }))
+            ];
+            sessionPending(takeData);
+        } catch (error) {
+            console.error('Error loading session:', error);
+            const offlineDatas = JSON.parse(sessionStorage.getItem('local_pending') || '[]');
+            sessionPending(offlineDatas);
+        }
+    };
 
-    // const loadData = async () => {
-    //     try {
-    //         const data = await request.get(`api/phonebook?limit=10&id=${id}`);
-    //         console.log('load data', data.data.phonebook);
-    //     } catch (error) {
-    //         console.error("Error loadData data:", error);
-    //     };
-    // }
+    const handleResendDelete = async (id, operation, contactData = null) => {
+        try {
+            await request.delete(`api/phonebook/${id}`);
+            setPhonebookItems(prevItems => prevItems.filter(item => item.id !== id));
+            sessionPending(PhonebookItems.map(item => item.id === id ? { ...item, ...contactData, status: { sent: false, operation: null } } : item));
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    
+    const handleResendUpdate = async (id, operation, contactData = null) => {
+        try {
+            await request.put(`api/phonebook/${id}`, contactData);
+            setPhonebookItems(prevItems => prevItems.map(item => item.id === id ? { ...item, ...contactData } : item));
+            sessionPending(PhonebookItems.map(item => item.id === id ? { ...item, ...contactData, status: { sent: false, operation: null } } : item));
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
-    // // useEffect 1(loadData)
-    // useEffect(() => {
-    //     loadData();
-    // }, []);
+    const handleResendRetryAdd = async (id, operation, contactData = null) => {
+        try {
+            const { data } = await request.post('api/phonebook', contactData);
+            loadSession(PhonebookItems.map(item => item.id !== id));
+            sessionPending(PhonebookItems.map(item => item.id === data.id ? { ...item, id: data.id, status: { sent: true, operation: null } } : item));
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
-    // useEffect 2
+
+    const sessionPending = async (newContacts) => {
+        sessionStorage.setItem('local_pending', JSON.stringify(newContacts));
+        setPhonebookItems((newContacts))
+    }
+
+    // useEffect 1 ( session Data )
+    useEffect(() => {
+        sessionStorage.setItem('searchQuery', JSON.stringify(searchQuery));
+    }, [searchQuery]);
+
+    // useEffect 2 ( Reset Data )
     useEffect(() => {
         setPage(1);
         setPhonebookItems([]);
@@ -79,13 +117,13 @@ export const PhonebookBox = () => {
     }, [searchQuery, sortOrder]);
 
 
-    // useEffect 3
+    // useEffect 3 ( Fetch Data )
     useEffect(() => {
         Promise.resolve().then(() => fetchPhonebookItems(page, searchQuery, sortOrder));
     }, [page, searchQuery, sortOrder]);
 
 
-    // useEffect 3
+    // useEffect 4 ( Intersection Observer )
     useEffect(() => {
         if (isFetch) return;
         if (observer.current) observer.current.disconnect();
@@ -123,19 +161,19 @@ export const PhonebookBox = () => {
 
     const throwDeleteModal = (item) => {
         setToDeleteId(item);
-        setDeleteModalView(true);
+        setDeleteModalView({isOpen : true, contactIdRemove: item.id});
     };
 
     const closeDeleteModal = () => {
         setToDeleteId(null);
-        setDeleteModalView(false);
+        setDeleteModalView({isOpen : false, contactIdRemove: null});
     };
 
     return (
         <>
             <PhonebookHead
                 setSearchQuery={(keyword) => {
-                    setSearchQuery(keyword);
+                    setSearchQuery(prev => ({ ...prev, keyword }));
                     setPage(1);
                 }}
                 setSort={(order) => {
@@ -145,10 +183,12 @@ export const PhonebookBox = () => {
                 sortOrder={sortOrder}
             />
             <PhonebookList
-                PhonebookItems={PhonebookItems}
-                updatePhonebook={updatePhonebook}
-                deletePhonebook={deletePhonebook}
-                throwDeleteModal={throwDeleteModal}
+                PhonebookItems={[...PhonebookItems]}
+                updatePhonebook={(id, name, phone ) => updatePhonebook(id, handleResendUpdate, { name, phone })}
+                deletePhonebook={(id) => setDeleteModalView({ isOpen: true, contactIdRemove: id, handleResendDelete })}
+                throwDeleteModal={(throwDeleteModal)}
+                handleResendRetryAdd={(PhonebookItems) => handleResendRetryAdd(PhonebookItems.id, 'add', PhonebookItems)}
+
             />
             {
                 isFetch && (

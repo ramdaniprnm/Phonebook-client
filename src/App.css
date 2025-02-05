@@ -37,8 +37,6 @@
   }
 }
 
-
-
 body {
   background-color: #f8f8f8;
 }
@@ -54,7 +52,6 @@ body {
   font-weight: bold;
 }
 
-
 .adding-form {
     display: flex;
     justify-content: center;
@@ -65,7 +62,6 @@ body {
     box-sizing: border-box;
     margin-top: 5px 
 }
-
 
 .edit-form {
   display: flex;
@@ -92,8 +88,6 @@ body {
   margin-left: -40px;
   padding-left: 30px;
 }
-
-
 
 /* Contact Card Styles */
 
@@ -130,7 +124,6 @@ body {
   padding: 20px;
 }
 
-
 .form-title {
   font-size: 24px;
   margin-bottom: 30px;
@@ -162,7 +155,6 @@ body {
 .btn-group > .btn-brown {
   flex: 1;
 }
-
 
 .search-btn {
   padding: 10px;
@@ -271,7 +263,7 @@ body {
 
 .card-text {
   margin-left: 15px;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
 }
 
 .avatar {
@@ -474,3 +466,4 @@ body {
   padding: 8px 20px;
   min-width: 80px;
 }
+
